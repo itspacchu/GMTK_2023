@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cn0wr2dg6cdl2"]
+
+[ext_resource type="Shader" path="res://Shaders/metergrid.gdshader" id="1_t4dxf"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_t4dxf")
+shader_parameter/lightColor = Color(1, 1, 1, 1)
+shader_parameter/darkColor = Color(0.482353, 0.482353, 0.482353, 1)
+shader_parameter/borderColor = null

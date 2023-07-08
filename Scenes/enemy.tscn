@@ -1,0 +1,42 @@
+[gd_scene load_steps=7 format=3 uid="uid://ct6otkc8hp4r5"]
+
+[ext_resource type="Texture2D" uid="uid://b33cp2novlhe2" path="res://Images/7600-normal.jpg" id="1_1oicc"]
+[ext_resource type="Script" path="res://Scripts/enemy.gd" id="1_y071a"]
+[ext_resource type="Script" path="res://Scripts/getParent.gd" id="2_jm7y3"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tpr7g"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_58jnp"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5s05h"]
+albedo_color = Color(1, 0.298039, 0.513726, 1)
+metallic_specular = 0.32
+normal_enabled = true
+normal_scale = 0.42
+normal_texture = ExtResource("1_1oicc")
+uv1_scale = Vector3(1.047, 0.8, 1.047)
+uv1_triplanar = true
+
+[node name="enemy" type="Node3D" node_paths=PackedStringArray("rigidBody")]
+script = ExtResource("1_y071a")
+rigidBody = NodePath("ai_walk/PlayerBody")
+
+[node name="ai_walk" type="Node3D" parent="."]
+
+[node name="PlayerBody" type="RigidBody3D" parent="ai_walk" node_paths=PackedStringArray("parent") groups=["Enemies"]]
+unique_name_in_owner = true
+collision_layer = 7
+collision_mask = 3
+mass = 2.5
+can_sleep = false
+script = ExtResource("2_jm7y3")
+parent = NodePath("../..")
+
+[node name="collision" type="CollisionShape3D" parent="ai_walk/PlayerBody"]
+shape = SubResource("BoxShape3D_tpr7g")
+
+[node name="mesh" type="MeshInstance3D" parent="ai_walk/PlayerBody"]
+layers = 2
+mesh = SubResource("BoxMesh_58jnp")
+skeleton = NodePath("../../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_5s05h")
