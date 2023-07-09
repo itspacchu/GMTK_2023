@@ -1,14 +1,21 @@
-[gd_scene load_steps=36 format=3 uid="uid://cj328pklybftr"]
+[gd_scene load_steps=48 format=3 uid="uid://cj328pklybftr"]
 
 [ext_resource type="Script" path="res://Scripts/playable_entity.gd" id="1_iyypx"]
-[ext_resource type="Texture2D" uid="uid://b33cp2novlhe2" path="res://Images/7600-normal.jpg" id="2_78eb7"]
 [ext_resource type="Script" path="res://Scripts/position_pivot.gd" id="2_n70iq"]
+[ext_resource type="Script" path="res://Scripts/PlayerBody.gd" id="2_x4ihx"]
 [ext_resource type="Script" path="res://Scripts/playerSmoothPivot.gd" id="3_3uhb2"]
 [ext_resource type="Texture2D" uid="uid://vlmr3oqlsxii" path="res://addons/kenney_particle_pack/trace_01.png" id="3_p2viq"]
+[ext_resource type="Material" uid="uid://dytsw7d20vgmj" path="res://Shaders/Player_shader.tres" id="3_ypdw2"]
+[ext_resource type="AudioStream" uid="uid://dkg2dtcftb70x" path="res://Audio/Jump 2.wav" id="4_be6xt"]
 [ext_resource type="Texture2D" uid="uid://bw2cexj08s4co" path="res://addons/kenney_particle_pack/trace_06.png" id="4_cacoq"]
 [ext_resource type="Texture2D" uid="uid://cd2xs4ratdrvq" path="res://Images/icons/2B06_color.png" id="4_j7ueg"]
+[ext_resource type="AudioStream" uid="uid://bebnc6t3kci1a" path="res://Audio/wind woosh loop.ogg" id="5_coug2"]
+[ext_resource type="AudioStream" uid="uid://bdrmmea6044l2" path="res://Audio/thwack-02.wav" id="5_d3qyn"]
 [ext_resource type="Shader" path="res://Scripts/playable_entity.gdshader" id="8_rtbiw"]
 [ext_resource type="Texture2D" uid="uid://iwy28eovk1mk" path="res://Images/icons/270B-1F3FD.svg" id="9_abvqt"]
+[ext_resource type="FontFile" uid="uid://v4wvng6u27we" path="res://Fonts/Nexa-Heavy.ttf" id="11_78cuj"]
+[ext_resource type="Script" path="res://Scripts/DeadMenu.gd" id="11_c7pk6"]
+[ext_resource type="FontFile" uid="uid://kbuau6u2i71k" path="res://Fonts/Nexa-ExtraLight.ttf" id="13_okn71"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3fhpa"]
 resource_name = "Material.001"
@@ -115,23 +122,14 @@ shadow_mesh = SubResource("ArrayMesh_h3x7v")
 
 [sub_resource type="BoxMesh" id="BoxMesh_y50wq"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mxauy"]
-albedo_color = Color(0, 0.623529, 1, 1)
-metallic_specular = 0.32
-normal_enabled = true
-normal_scale = 0.42
-normal_texture = ExtResource("2_78eb7")
-uv1_scale = Vector3(1.047, 0.8, 1.047)
-uv1_triplanar = true
-
 [sub_resource type="SphereShape3D" id="SphereShape3D_qd0nr"]
-radius = 0.731725
+radius = 0.460636
 
 [sub_resource type="Curve" id="Curve_fontn"]
 _data = [Vector2(0, 0), 0.0, 6.78116, 0, 0, Vector2(1, 0.0105263), -0.0203864, 0.0, 0, 0]
 point_count = 2
 
-[sub_resource type="CurveTexture" id="CurveTexture_1gppe"]
+[sub_resource type="CurveTexture" id="CurveTexture_yx3yp"]
 curve = SubResource("Curve_fontn")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_x78rb"]
@@ -143,9 +141,9 @@ linear_accel_max = 100.0
 radial_accel_max = 100.0
 scale_min = 0.0
 scale_max = 2.0
-scale_curve = SubResource("CurveTexture_1gppe")
+scale_curve = SubResource("CurveTexture_yx3yp")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_avfce"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bbdjv"]
 transparency = 1
 shading_mode = 2
 albedo_texture = ExtResource("3_p2viq")
@@ -153,13 +151,13 @@ emission_enabled = true
 emission = Color(0, 0.623529, 1, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_4pooh"]
-material = SubResource("StandardMaterial3D_avfce")
+material = SubResource("StandardMaterial3D_bbdjv")
 
 [sub_resource type="Curve" id="Curve_hmun6"]
 _data = [Vector2(0, 0), 0.0, 0.0495546, 0, 0, Vector2(1, 1), 3.07464, 0.0, 0, 0]
 point_count = 2
 
-[sub_resource type="CurveTexture" id="CurveTexture_hnlog"]
+[sub_resource type="CurveTexture" id="CurveTexture_7d6mi"]
 curve = SubResource("Curve_hmun6")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ti461"]
@@ -171,9 +169,9 @@ emission_ring_inner_radius = 4.0
 gravity = Vector3(0, -10, 0)
 initial_velocity_max = 1.0
 scale_min = 0.0
-scale_curve = SubResource("CurveTexture_hnlog")
+scale_curve = SubResource("CurveTexture_7d6mi")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l6otr"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7v4lb"]
 transparency = 1
 shading_mode = 2
 albedo_texture = ExtResource("4_cacoq")
@@ -182,9 +180,12 @@ emission = Color(1, 1, 1, 1)
 billboard_mode = 2
 
 [sub_resource type="QuadMesh" id="QuadMesh_65k52"]
-material = SubResource("StandardMaterial3D_l6otr")
+material = SubResource("StandardMaterial3D_7v4lb")
 size = Vector2(0.07, 1)
 center_offset = Vector3(0, 0.5, 0)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_cj65h"]
+radius = 0.813595
 
 [sub_resource type="QuadMesh" id="QuadMesh_qq3tq"]
 flip_faces = true
@@ -205,9 +206,8 @@ shader_parameter/grazing_fresnel_power = 5.0
 shader_parameter/grazing_angle_mask_power = 1.0
 shader_parameter/grazing_angle_modulation_factor = 50.0
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_fua4y"]
-height = 13.7423
-radius = 2.1504
+[sub_resource type="BoxShape3D" id="BoxShape3D_ic5sr"]
+size = Vector3(1.84325, 17.4418, 2.11687)
 
 [sub_resource type="QuadMesh" id="QuadMesh_lo2yx"]
 
@@ -225,15 +225,99 @@ billboard_mode = 2
 transparency = 1
 depth_draw_mode = 1
 no_depth_test = true
+shading_mode = 0
 albedo_texture = ExtResource("9_abvqt")
 billboard_mode = 1
 
-[node name="playableEntity" type="Node3D" node_paths=PackedStringArray("rigidBody")]
+[sub_resource type="Theme" id="Theme_eadfe"]
+
+[sub_resource type="Animation" id="Animation_6sqcq"]
+resource_name = "hurt"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BASE/HEALTHBAR:color")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.116543, 0.521606, 1),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 0, 0, 1), Color(1, 0, 0, 1), Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("BASE/HEALTHBAR:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.127384, 0.168704, 0.210918, 0.254845),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(-6, -7), Vector2(-10, 7), Vector2(5, 4), Vector2(0, 0)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../..")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.117361),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"hurt_particles"
+}]
+}
+
+[sub_resource type="Animation" id="Animation_pmi65"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BASE/HEALTHBAR:color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("BASE/HEALTHBAR:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dheqm"]
+_data = {
+"RESET": SubResource("Animation_pmi65"),
+"hurt": SubResource("Animation_6sqcq")
+}
+
+[sub_resource type="Curve" id="Curve_06lyc"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 3.23445, 0.0, 0, 0]
+point_count = 2
+
+[node name="playableEntity" type="Node3D" node_paths=PackedStringArray("rigidBody") groups=["Player"]]
 script = ExtResource("1_iyypx")
 rigidBody = NodePath("PlayerBody")
 
-[node name="PlayerBody" type="RigidBody3D" parent="."]
+[node name="PlayerBody" type="RigidBody3D" parent="." node_paths=PackedStringArray("parent") groups=["Player"]]
+collision_mask = 3
 mass = 2.5
+script = ExtResource("2_x4ihx")
+parent = NodePath("..")
 
 [node name="Circle" type="MeshInstance3D" parent="PlayerBody"]
 transform = Transform3D(-4.252e-08, 0, 0.972744, 0, 0.972744, 0, -0.972744, 0, -4.252e-08, 0, 0, 0)
@@ -247,7 +331,18 @@ shape = SubResource("BoxShape3D_1e1og")
 layers = 2
 mesh = SubResource("BoxMesh_y50wq")
 skeleton = NodePath("../..")
-surface_material_override/0 = SubResource("StandardMaterial3D_mxauy")
+surface_material_override/0 = ExtResource("3_ypdw2")
+
+[node name="SlamSFX" type="AudioStreamPlayer3D" parent="PlayerBody"]
+stream = ExtResource("4_be6xt")
+
+[node name="windwoosh" type="AudioStreamPlayer3D" parent="PlayerBody"]
+stream = ExtResource("5_coug2")
+volume_db = -15.0
+autoplay = true
+
+[node name="JumpDownSFX" type="AudioStreamPlayer3D" parent="PlayerBody"]
+stream = ExtResource("5_d3qyn")
 
 [node name="GroundTesting" type="RayCast3D" parent="." node_paths=PackedStringArray("playerBody")]
 collision_mask = 5
@@ -290,6 +385,14 @@ fixed_fps = 12
 process_material = SubResource("ParticleProcessMaterial_ti461")
 draw_pass_1 = SubResource("QuadMesh_65k52")
 
+[node name="KineticSmasher" type="Area3D" parent="GroundTesting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.729275)
+collision_layer = 0
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GroundTesting/KineticSmasher"]
+shape = SubResource("SphereShape3D_cj65h")
+
 [node name="playerPivot" type="Node3D" parent="." node_paths=PackedStringArray("playerBody")]
 script = ExtResource("3_3uhb2")
 playerBody = NodePath("../PlayerBody")
@@ -312,8 +415,12 @@ collision_layer = 0
 collision_mask = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="playerPivot/camPivot/Camera3D/Area3D"]
-transform = Transform3D(1, 0, 0, 0, -0.292372, -0.956306, 0, 0.956306, -0.292372, 0, 0.323775, -8.4972)
-shape = SubResource("CylinderShape3D_fua4y")
+transform = Transform3D(1, 0, 0, 0, -0.292372, -0.956306, 0, 0.956306, -0.292372, 0, 1.92489, -10.3459)
+shape = SubResource("BoxShape3D_ic5sr")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="playerPivot/camPivot/Camera3D/Area3D/CollisionShape3D"]
+visible = false
+size = Vector3(2.14393, 10.4424, 2.04669)
 
 [node name="ForwardArrow" type="CSGMesh3D" parent="playerPivot"]
 transform = Transform3D(1.21038, 0, 0, 0, -5.29075e-08, 1.21038, 0, -1.21038, -5.29075e-08, -0.00586081, -0.00309427, -1.6871)
@@ -328,4 +435,194 @@ transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 mesh = SubResource("QuadMesh_sjq0f")
 surface_material_override/0 = SubResource("StandardMaterial3D_cii6c")
 
+[node name="DeadMenu" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("11_c7pk6")
+
+[node name="ColorRect" type="ColorRect" parent="DeadMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.176471, 0.176471, 0.176471, 1)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="DeadMenu"]
+layout_mode = 1
+offset_left = 13.0
+offset_top = 12.0
+offset_right = 473.0
+offset_bottom = 142.0
+theme_override_fonts/normal_font = ExtResource("11_78cuj")
+theme_override_font_sizes/normal_font_size = 100
+text = "You Died"
+fit_content = true
+scroll_active = false
+
+[node name="score_text" type="RichTextLabel" parent="DeadMenu"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+offset_left = 28.0
+offset_top = 133.0
+offset_right = 415.0
+offset_bottom = 217.0
+grow_horizontal = 2
+theme_override_fonts/normal_font = ExtResource("13_okn71")
+theme_override_font_sizes/normal_font_size = 64
+text = "Score"
+fit_content = true
+scroll_active = false
+
+[node name="score_num" type="RichTextLabel" parent="DeadMenu"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+offset_left = 499.0
+offset_top = 133.0
+offset_right = 886.0
+offset_bottom = 217.0
+grow_horizontal = 2
+theme_override_fonts/normal_font = ExtResource("11_78cuj")
+theme_override_font_sizes/normal_font_size = 64
+text = "Score"
+fit_content = true
+scroll_active = false
+
+[node name="restartButton" type="Button" parent="DeadMenu"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -316.0
+offset_top = 23.0
+offset_right = -26.0
+offset_bottom = 97.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("11_78cuj")
+theme_override_font_sizes/font_size = 32
+text = "Restart"
+
+[node name="mainMenuButton" type="Button" parent="DeadMenu"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -316.0
+offset_top = 101.0
+offset_right = -26.0
+offset_bottom = 175.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("11_78cuj")
+theme_override_font_sizes/font_size = 32
+text = "Main Menu"
+
+[node name="exitButton" type="Button" parent="DeadMenu"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -317.0
+offset_top = 180.0
+offset_right = -27.0
+offset_bottom = 254.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("11_78cuj")
+theme_override_font_sizes/font_size = 32
+text = "Exit"
+
+[node name="TextureRect" type="TextureRect" parent="DeadMenu"]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -544.0
+offset_top = 242.0
+offset_right = 30.0
+offset_bottom = -71.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UIHandler" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BottomBars" type="Control" parent="UIHandler"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -84.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = SubResource("Theme_eadfe")
+
+[node name="BASE" type="ColorRect" parent="UIHandler/BottomBars"]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 44.0
+offset_right = 283.0
+offset_bottom = 60.0
+color = Color(0.34902, 0.34902, 0.34902, 1)
+
+[node name="HEALTHBAR" type="ColorRect" parent="UIHandler/BottomBars/BASE"]
+layout_mode = 0
+offset_right = 256.0
+offset_bottom = 16.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="UIHandler/BottomBars"]
+libraries = {
+"": SubResource("AnimationLibrary_dheqm")
+}
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="UIHandler/BottomBars"]
+position = Vector2(156, 43)
+emitting = false
+amount = 30
+lifetime = 0.4
+one_shot = true
+emission_shape = 3
+emission_rect_extents = Vector2(128, 32)
+gravity = Vector2(0, -900)
+scale_amount_max = 4.0
+color = Color(1, 0, 0, 1)
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="UIHandler"]
+visible = false
+position = Vector2(585, 664)
+emitting = false
+amount = 100
+lifetime = 3.0
+preprocess = 2.0
+randomness = 0.44
+lifetime_randomness = 0.32
+emission_shape = 3
+emission_rect_extents = Vector2(700, 1)
+spread = 180.0
+gravity = Vector2(0, -100)
+scale_amount_min = 0.0
+scale_amount_max = 7.0
+scale_amount_curve = SubResource("Curve_06lyc")
+color = Color(1, 0, 0, 1)
+
+[connection signal="body_entered" from="GroundTesting/KineticSmasher" to="." method="_on_kinetic_smasher_body_entered"]
 [connection signal="body_entered" from="playerPivot/camPivot/Camera3D/Area3D" to="." method="_on_area_3d_body_entered"]
+[connection signal="button_down" from="DeadMenu/restartButton" to="DeadMenu" method="_on_restart_button_button_down"]
+[connection signal="button_down" from="DeadMenu/mainMenuButton" to="DeadMenu" method="_on_main_menu_button_button_down"]
+[connection signal="button_down" from="DeadMenu/exitButton" to="DeadMenu" method="_on_exit_button_button_down"]
+[connection signal="animation_finished" from="UIHandler/BottomBars/AnimationPlayer" to="." method="_on_animation_player_animation_finished"]

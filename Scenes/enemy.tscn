@@ -1,8 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://ct6otkc8hp4r5"]
+[gd_scene load_steps=22 format=3 uid="uid://ct6otkc8hp4r5"]
 
 [ext_resource type="Texture2D" uid="uid://b33cp2novlhe2" path="res://Images/7600-normal.jpg" id="1_1oicc"]
 [ext_resource type="Script" path="res://Scripts/enemy.gd" id="1_y071a"]
 [ext_resource type="Script" path="res://Scripts/getParent.gd" id="2_jm7y3"]
+[ext_resource type="Script" path="res://Scripts/position_pivot.gd" id="4_xo1g0"]
+[ext_resource type="Texture2D" uid="uid://vlmr3oqlsxii" path="res://addons/kenney_particle_pack/trace_01.png" id="5_7pyjg"]
+[ext_resource type="Texture2D" uid="uid://bw2cexj08s4co" path="res://addons/kenney_particle_pack/trace_06.png" id="6_c3htq"]
+[ext_resource type="AudioStream" uid="uid://d3atahelavwfk" path="res://Audio/Jump 1.wav" id="7_m28t3"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_tpr7g"]
 
@@ -17,9 +21,72 @@ normal_texture = ExtResource("1_1oicc")
 uv1_scale = Vector3(1.047, 0.8, 1.047)
 uv1_triplanar = true
 
+[sub_resource type="Curve" id="Curve_vik0x"]
+_data = [Vector2(0, 0), 0.0, 6.78116, 0, 0, Vector2(1, 0.0105263), -0.0203864, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_1gppe"]
+curve = SubResource("Curve_vik0x")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_74thr"]
+emission_shape = 3
+emission_box_extents = Vector3(1, 1, 1)
+particle_flag_align_y = true
+gravity = Vector3(9, 100, 0)
+linear_accel_max = 100.0
+radial_accel_max = 100.0
+scale_min = 0.0
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_1gppe")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ei0fk"]
+transparency = 1
+shading_mode = 2
+albedo_texture = ExtResource("5_7pyjg")
+emission_enabled = true
+emission = Color(1, 0.298039, 0.513726, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_se6q6"]
+material = SubResource("StandardMaterial3D_ei0fk")
+
+[sub_resource type="Curve" id="Curve_xscue"]
+_data = [Vector2(0, 0), 0.0, 0.0495546, 0, 0, Vector2(1, 1), 3.07464, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_hnlog"]
+curve = SubResource("Curve_xscue")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_gswtj"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 1, 0)
+emission_ring_height = 1.0
+emission_ring_radius = 7.0
+emission_ring_inner_radius = 4.0
+gravity = Vector3(0, -10, 0)
+initial_velocity_max = 1.0
+scale_min = 0.0
+scale_curve = SubResource("CurveTexture_hnlog")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l6otr"]
+transparency = 1
+shading_mode = 2
+albedo_texture = ExtResource("6_c3htq")
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+billboard_mode = 2
+
+[sub_resource type="QuadMesh" id="QuadMesh_ucd85"]
+material = SubResource("StandardMaterial3D_l6otr")
+size = Vector2(0.07, 1)
+center_offset = Vector3(0, 0.5, 0)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_wyopf"]
+radius = 0.803515
+
 [node name="enemy" type="Node3D" node_paths=PackedStringArray("rigidBody")]
 script = ExtResource("1_y071a")
 rigidBody = NodePath("ai_walk/PlayerBody")
+current_type = 1
 
 [node name="ai_walk" type="Node3D" parent="."]
 
@@ -40,3 +107,80 @@ layers = 2
 mesh = SubResource("BoxMesh_58jnp")
 skeleton = NodePath("../../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_5s05h")
+
+[node name="Label3D" type="Label3D" parent="ai_walk/PlayerBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.820654, 0)
+billboard = 1
+double_sided = false
+no_depth_test = true
+text = "20"
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="ai_walk/PlayerBody"]
+navigation_layers = 3
+avoidance_enabled = true
+debug_path_custom_color = Color(0.498039, 0.243137, 0.152941, 1)
+
+[node name="SlamSFX" type="AudioStreamPlayer3D" parent="ai_walk/PlayerBody"]
+unique_name_in_owner = true
+stream = ExtResource("7_m28t3")
+volume_db = -10.0
+pitch_scale = 0.5
+panning_strength = 1.23
+
+[node name="GroundTesting" type="RayCast3D" parent="." node_paths=PackedStringArray("playerBody")]
+collision_mask = 5
+script = ExtResource("4_xo1g0")
+playerBody = NodePath("../ai_walk/PlayerBody")
+
+[node name="slam_particles" type="GPUParticles3D" parent="GroundTesting"]
+emitting = false
+amount = 100
+lifetime = 0.2
+one_shot = true
+visibility_aabb = AABB(-0.602246, -0.68038, -0.676379, 1.20449, 1.36076, 1.35276)
+transform_align = 3
+process_material = SubResource("ParticleProcessMaterial_74thr")
+draw_pass_1 = SubResource("QuadMesh_se6q6")
+
+[node name="slam_light" type="OmniLight3D" parent="GroundTesting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1804, 0)
+visible = false
+light_color = Color(1, 0.298039, 0.513726, 1)
+light_energy = 10.0
+
+[node name="jump_particles" type="GPUParticles3D" parent="GroundTesting"]
+transform = Transform3D(0.143062, 0, 0, 0, 0.143062, 0, 0, 0, 0.143062, 0, 0, 0)
+emitting = false
+amount = 50
+lifetime = 0.4
+one_shot = true
+speed_scale = 3.0
+fixed_fps = 12
+process_material = SubResource("ParticleProcessMaterial_gswtj")
+draw_pass_1 = SubResource("QuadMesh_ucd85")
+
+[node name="Area3D" type="Area3D" parent="GroundTesting"]
+collision_layer = 0
+collision_mask = 6
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GroundTesting/Area3D"]
+transform = Transform3D(5.16742, 0, 0, 0, 5.16742, 0, 0, 0, 5.16742, 0, 0, 0)
+shape = SubResource("SphereShape3D_wyopf")
+
+[node name="enemylight" type="OmniLight3D" parent="GroundTesting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1804, 0)
+light_color = Color(1, 0.298039, 0.513726, 1)
+light_energy = 2.0
+
+[node name="JumpSlamTimer" type="Timer" parent="."]
+wait_time = 0.25
+one_shot = true
+
+[node name="SlamCoolDown" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[connection signal="velocity_computed" from="ai_walk/PlayerBody/NavigationAgent3D" to="ai_walk/PlayerBody" method="_on_navigation_agent_3d_velocity_computed"]
+[connection signal="timeout" from="JumpSlamTimer" to="." method="_on_jump_slam_timer_timeout"]
+[connection signal="timeout" from="SlamCoolDown" to="." method="_on_slam_cool_down_timeout"]

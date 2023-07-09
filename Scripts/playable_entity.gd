@@ -3,19 +3,27 @@ enum {CUBE_TYPE=0,SPH_TYPE,CYL_TYPE,DEFAULT_CUBE};
 
 @export var rigidBody:RigidBody3D;
 @export var ScalingFactor:float = 3.1;
-@export var JUMP_VELOCITY = 0.3
-@export var player_color:Color = Color.DARK_SALMON
+@export var glob_pos = Vector3.ZERO
+@export var last_known_ground_point = Vector3.ZERO
+
+
+static var MAX_HEALTH:int = 50
 static var SENS:float = 0.001
+@export var JUMP_VELOCITY = 0.3
 
 var slam_time = 0
+var death_image = null;
 
 var is_on_ground:bool = true
 var is_slamming:bool = false
 var is_jumping:bool = false
-var current_type = SPH_TYPE
+@export var current_type = DEFAULT_CUBE
+
 
 @onready var collision_box = $PlayerBody/collision
 @onready var mesh = $PlayerBody/mesh
+@onready var hit_marker = preload("res://Models/label_3d.tscn")
+@onready var death_particles = preload("res://Models/ded.tscn")
 
 
 var kinetic_damage_scalar:float = 1
@@ -26,8 +34,11 @@ var torque_scalar:float = 1
 
 var selected_body = null
 
+var damage_dealt = 0
+var kills = 0
+var prev_ground_state = true
 
-@export var health = 10
+@export var health = 100
 
 func switch_enemies(new_type):
 	if(new_type == current_type):
@@ -43,12 +54,12 @@ func switch_enemies(new_type):
 		mesh.mesh = new_mesh
 
 		kinetic_damage_scalar = 0.5
-		impact_damage_scalar = 5
+		impact_damage_scalar = 7.5
 		
 		JUMP_VELOCITY = 0.3
 		torque_scalar = 1.2
 		force_scalar = 5.0
-
+		$PlayerBody/SlamSFX.pitch_scale = 0.5
 		$GroundTesting.target_position = Vector3(0,-1,0)
 		
 	elif(new_type == SPH_TYPE):
@@ -58,7 +69,7 @@ func switch_enemies(new_type):
 		new_mesh.radius = new_shape.radius
 		collision_box.shape = new_shape
 		mesh.mesh = new_mesh
-		
+		$PlayerBody/SlamSFX.pitch_scale = 3
 		kinetic_damage_scalar = 5
 		impact_damage_scalar = 0.2
 		
@@ -78,7 +89,7 @@ func switch_enemies(new_type):
 		new_mesh.height = new_shape.height
 		collision_box.shape = new_shape
 		mesh.mesh = new_mesh
-		
+		$PlayerBody/SlamSFX.pitch_scale = 2
 		kinetic_damage_scalar = 2.5
 		impact_damage_scalar = 2.5
 		
@@ -94,10 +105,30 @@ func switch_enemies(new_type):
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	switch_enemies(CUBE_TYPE)
+	switch_enemies(SPH_TYPE)
+	health = MAX_HEALTH
+
+func take_dmg():
+	$UIHandler/BottomBars/AnimationPlayer.play("hurt")
+
+func process_health():
+	var remapped = remap(health,0,MAX_HEALTH,0,256)
+	$UIHandler/BottomBars/BASE/HEALTHBAR.size.x = remapped
+	if(health < 1):
+		death_image = get_viewport().get_texture().get_image()
+		commit_die()
+	if(health < 0.3*MAX_HEALTH):
+		$UIHandler/CPUParticles2D.emitting = true
+	else:
+		$UIHandler/CPUParticles2D.emitting = false
 
 func _process(_delta):
+	process_health()
+	glob_pos = rigidBody.global_position
+	if($GroundTesting.get_collider() != null):
+		last_known_ground_point = $GroundTesting.get_collider().global_position
 	is_on_ground = $GroundTesting.get_collider() != null
+	
 	if(Input.is_action_pressed("ui_accept")):
 		process_jumping(_delta)
 	var input_dir = Input.get_vector("ui_up", "ui_down", "ui_right", "ui_left")
@@ -114,7 +145,7 @@ func _process(_delta):
 			$GroundTesting/slam_particles.emitting = false
 			rigidBody.linear_velocity = 0.1*rigidBody.linear_velocity
 			rigidBody.angular_damp = 0
-			
+			$PlayerBody/SlamSFX.play(0.03)
 			slam_targets(_delta,Time.get_ticks_msec() - slam_time)
 			print(Time.get_ticks_msec() - slam_time)
 			slam_time = 0
@@ -134,6 +165,16 @@ func _process(_delta):
 		%hand_selector.global_position = selected_body.get_node("ai_walk/PlayerBody").global_position
 	else:
 		%hand_selector.visible = false
+		
+	if(not prev_ground_state and is_on_ground):
+		$PlayerBody/JumpDownSFX.play(0.01)
+		prev_ground_state = is_on_ground
+		pass
+	
+	if(rigidBody.linear_velocity.length_squared() > 0 and health > 1):
+		$PlayerBody/windwoosh.volume_db = remap(rigidBody.linear_velocity.length_squared(),0,100,-40,-10)
+		$PlayerBody/windwoosh.pitch_scale = remap(rigidBody.linear_velocity.length_squared(),0,100,1,3)
+	
 
 func process_slam(_delta):
 	if(is_slamming):
@@ -150,6 +191,9 @@ func slam_targets(_delta,tot_time=0):
 	for enemy in $GroundTesting/Area3D.get_overlapping_bodies():
 		if(enemy.is_in_group("Enemies")):
 			enemy.parent.health -= impact_damage_scalar
+			if(enemy.parent.health < 1):
+				kills += 1
+			damage_dealt += impact_damage_scalar
 			enemy.linear_velocity *= 0.1
 			enemy.angular_velocity *= 0.1
 			enemy.apply_central_impulse(200 * _delta * tot_time/10 * rigidBody.mass * (Vector3.UP))
@@ -164,18 +208,50 @@ func process_jumping(_delta):
 func _input(event):
 	if event is InputEventMouseButton:
 		if(event.button_index == MOUSE_BUTTON_MASK_LEFT and event.pressed and selected_body):
-			var old_thing = current_type
-			switch_enemies(selected_body.current_type)
-			selected_body.switch_enemies(old_thing)
+			if(true):
+				var old_thing = current_type
+				var old_health = health
+				switch_enemies(selected_body.current_type)
+				health = selected_body.health*5 
+				selected_body.health = old_health/5
+				selected_body.switch_enemies(old_thing)
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		$playerPivot.rotate_y(-event.relative.x * SENS)
 		$playerPivot/camPivot.rotate_x(-event.relative.y * SENS)
-		$playerPivot/camPivot.rotation.x = clamp($playerPivot/camPivot.rotation.x, deg_to_rad(-50), deg_to_rad(-10))
+		$playerPivot/camPivot.rotation.x = clamp($playerPivot/camPivot.rotation.x, deg_to_rad(-50), deg_to_rad(-1))
 
 func _on_area_3d_body_entered(body):
 	if(body.is_in_group("Enemies")):
 		if(body.get_parent().get_parent().current_type == current_type):
 			return
 		selected_body = body.get_parent().get_parent()
+
+
+func commit_die():
+	visible = false
+	global_position = Vector3(1000,1000,1000)
+	$DeadMenu.visible = true
+	$UIHandler.visible = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	$DeadMenu/score_num.text = str(int(damage_dealt) + int(kills*2))
+
+
+func _on_kinetic_smasher_body_entered(body):
+	if(rigidBody.linear_velocity.length_squared() > 30):
+		for enemy in $GroundTesting/KineticSmasher.get_overlapping_bodies():
+			if(enemy.is_in_group("Enemies")):
+				enemy.parent.health -= kinetic_damage_scalar
+				if(enemy.parent.health < 1):
+					kills += 1
+				damage_dealt += kinetic_damage_scalar
+				enemy.linear_velocity *= 0.1
+				enemy.angular_velocity *= 0.1
+
+func hurt_particles():
+	$UIHandler/BottomBars/CPUParticles2D.emitting = true
+
+
+func _on_animation_player_animation_finished(anim_name):
+	pass

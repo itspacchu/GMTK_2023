@@ -10,10 +10,24 @@ config_version=5
 
 [application]
 
-config/name="GMTK_roles_reversed"
-run/main_scene="res://Scenes/player_level.tscn"
+config/name="Duplismash"
+config/description="This game is made for GMTK gamejam 2023
+
+Made by @itspacchu (https://github.com/itspacchu)"
+run/main_scene="res://Scenes/main_menu.tscn"
 config/features=PackedStringArray("4.1", "Forward Plus")
-config/icon="res://icon.svg"
+run/flush_stdout_on_print=true
+boot_splash/show_image=false
+boot_splash/fullsize=false
+boot_splash/use_filter=false
+config/icon="res://Images/icon.png"
+config/macos_native_icon="res://Images/icon.png"
+config/windows_native_icon="res://Images/icon.png"
+
+[debug]
+
+settings/stdout/print_fps=true
+settings/stdout/verbose_stdout=true
 
 [input]
 
@@ -83,8 +97,15 @@ slam={
 3d_physics/layer_1="Player"
 3d_physics/layer_3="Enemies"
 
+[physics]
+
+common/physics_ticks_per_second=120
+common/max_physics_steps_per_frame=20
+3d/solver/solver_iterations=32
+
 [rendering]
 
+shader_compiler/shader_cache/strip_debug=true
 anti_aliasing/quality/msaa_2d=1
 anti_aliasing/quality/msaa_3d=1
 anti_aliasing/quality/screen_space_aa=1
