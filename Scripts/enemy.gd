@@ -126,12 +126,14 @@ func switch_enemies(new_type):
 	return 1
 
 func process_slam(_delta):
+	randomize()
 	can_slam_again = false
 	if(is_slamming):
 		return 0
 	is_slamming = true
 	rigidBody.angular_damp = 10
-	rigidBody.linear_velocity = 0.1*rigidBody.linear_velocity
+	rigidBody.linear_velocity = 0.05*rigidBody.linear_velocity
+	rigidBody.angular_velocity = 0.1*rigidBody.angular_velocity
 	$GroundTesting/slam_particles.emitting = true
 	$GroundTesting/slam_light.visible = true
 	$ai_walk/PlayerBody.apply_central_impulse(200 * _delta * 100 * 0.5 * rigidBody.mass * (Vector3.DOWN))
@@ -142,16 +144,15 @@ func process_slam(_delta):
 
 func _physics_process(_delta):
 	cur_delta = _delta
-	if((previous_player_pos - player_entity.glob_pos).length_squared() > 1):
-		$ai_walk/PlayerBody/NavigationAgent3D.target_position = player_entity.glob_pos
-		previous_player_pos = player_entity.glob_pos
+	#if((previous_player_pos - player_entity.glob_pos).length_squared() > 1):
+	$ai_walk/PlayerBody/NavigationAgent3D.target_position = player_entity.glob_pos + Vector3(randi_range(1,1.5),0,randi_range(1,1.5))
 	is_on_ground = $GroundTesting.get_collider() != null
 	var hbar = "["
 	for i in range(10):
 		if(i < health):
 			hbar += "#"
 		else:
-			hbar += "*"
+			hbar += " "
 	hbar += "]"
 	$ai_walk/PlayerBody/Label3D.text = hbar
 	if(health < 1):
@@ -175,7 +176,6 @@ func player_slammer():
 		if(is_on_ground and not is_slamming):
 			process_jumping(cur_delta)
 			$JumpSlamTimer.start(0.25)
-#			process_slam(cur_delta)
 
 
 func _on_jump_slam_timer_timeout():

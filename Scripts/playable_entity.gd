@@ -17,7 +17,7 @@ var death_image = null;
 var is_on_ground:bool = true
 var is_slamming:bool = false
 var is_jumping:bool = false
-@export var current_type = DEFAULT_CUBE
+@export var current_type:int;
 
 
 @onready var collision_box = $PlayerBody/collision
@@ -56,9 +56,9 @@ func switch_enemies(new_type):
 		kinetic_damage_scalar = 0.5
 		impact_damage_scalar = 7.5
 		
-		JUMP_VELOCITY = 0.3
+		JUMP_VELOCITY = 0.4
 		torque_scalar = 1.2
-		force_scalar = 5.0
+		force_scalar = 7.5
 		$PlayerBody/SlamSFX.pitch_scale = 0.5
 		$GroundTesting.target_position = Vector3(0,-1,0)
 		
@@ -73,9 +73,9 @@ func switch_enemies(new_type):
 		kinetic_damage_scalar = 5
 		impact_damage_scalar = 0.2
 		
-		JUMP_VELOCITY = 0.3
+		JUMP_VELOCITY = 0.35
 		torque_scalar = 7.0
-		force_scalar = 0.5
+		force_scalar = 1.0
 
 		$GroundTesting.target_position = Vector3(0,-0.6,0)
 		
@@ -94,8 +94,8 @@ func switch_enemies(new_type):
 		impact_damage_scalar = 2.5
 		
 		JUMP_VELOCITY = 0.3
-		torque_scalar = 1.5
-		force_scalar = 1.5
+		torque_scalar = 2.0
+		force_scalar = 2.0
 
 		$GroundTesting.target_position = Vector3(0,-0.6,0)
 		
