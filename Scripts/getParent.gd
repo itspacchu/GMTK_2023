@@ -1,7 +1,7 @@
 extends RigidBody3D
 
 @export var parent:Node3D;
-@export var SPEED = 10;
+@export var SPEED = 8;
 var safe_velocity_set = Vector3.ZERO
 
 func _physics_process(delta):

@@ -99,8 +99,8 @@ slam={
 
 [physics]
 
-common/physics_ticks_per_second=120
-common/max_physics_steps_per_frame=20
+common/physics_ticks_per_second=144
+common/max_physics_steps_per_frame=50
 3d/physics_engine="GodotPhysics3D"
 3d/solver/solver_iterations=45
 
